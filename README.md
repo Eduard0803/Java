@@ -24,7 +24,7 @@ A pasta [PDF's](Exercises/PDF's/) contém o enunciado dos exercícios
 
 - HackerRank
     - [Welcome to Java](https://www.hackerrank.com/challenges/welcome-to-java/problem) - [resolution](Exercises/Welcome-to-Java.java)
-    - [Java Stdin and Stdout II](https://www.hackerrank.com/challenges/java-stdin-stdout/problem) - [resolution](Exercises/Java Stdin and Stdout II.java)
+    - [Java Stdin and Stdout II](https://www.hackerrank.com/challenges/java-stdin-stdout/problem) - [resolution](Exercises/Java-Stdin-and-Stdout-II.java)
     - [Java If Else](https://www.hackerrank.com/challenges/java-if-else/problem) - [resolution](Exercises/Java-If-Else.java)
-    - [Java Loops I](https://www.hackerrank.com/challenges/java-loops-i/problem) - [resolution](Exercises/Java Loops I.java)
+    - [Java Loops I](https://www.hackerrank.com/challenges/java-loops-i/problem) - [resolution](Exercises/Java-Loops-I.java)
     - [EOF](https://www.hackerrank.com/challenges/java-end-of-file/problem) - [resolution](Exercises/EOF.java)
