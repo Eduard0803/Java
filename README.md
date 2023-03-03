@@ -20,11 +20,19 @@ scripts feitos enquanto estudo Java
 
 # Exercícios
 
-A pasta [PDF's](Exercises/PDF's/) contém o enunciado dos exercícios
-
 - HackerRank
     - [Welcome to Java](https://www.hackerrank.com/challenges/welcome-to-java/problem) - [resolution](Exercises/Welcome-to-Java.java)
     - [Java Stdin and Stdout II](https://www.hackerrank.com/challenges/java-stdin-stdout/problem) - [resolution](Exercises/Java-Stdin-and-Stdout-II.java)
     - [Java If Else](https://www.hackerrank.com/challenges/java-if-else/problem) - [resolution](Exercises/Java-If-Else.java)
     - [Java Loops I](https://www.hackerrank.com/challenges/java-loops-i/problem) - [resolution](Exercises/Java-Loops-I.java)
     - [EOF](https://www.hackerrank.com/challenges/java-end-of-file/problem) - [resolution](Exercises/EOF.java)
+    - [Java Substring](https://vjudge.net/problem/HackerRank-java-substring/origin) - [resolution](Exercises/Java-substring.java)
+
+- CodeForces
+    - [Watermelon](https://vjudge.net/problem/CodeForces-4A/origin) - [resolution](Exercises/Watermelon.java)
+    - [Way Too Long Words](https://vjudge.net/problem/CodeForces-71A/origin) - [resolution](Exercises/way-too-long-words.java)
+    - [Team](https://vjudge.net/problem/CodeForces-231A/origin) - [resolution](Exercises/Team.java)
+    - [Word](https://vjudge.net/problem/CodeForces-59A/origin) - [resolution](Exercises/Word.java)
+    - [Boy or Girl](https://vjudge.net/problem/CodeForces-236A/origin) - [resolution](Exercises/Boy-or-Girl.java)
+    - [Elephant](https://vjudge.net/problem/CodeForces-617A/origin) - [resolution](Exercises/Elephant.java)
+    
