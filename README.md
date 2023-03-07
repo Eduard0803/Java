@@ -35,4 +35,5 @@ scripts feitos enquanto estudo Java
     - [Word](https://vjudge.net/problem/CodeForces-59A/origin) - [resolution](Exercises/Word.java)
     - [Boy or Girl](https://vjudge.net/problem/CodeForces-236A/origin) - [resolution](Exercises/Boy-or-Girl.java)
     - [Elephant](https://vjudge.net/problem/CodeForces-617A/origin) - [resolution](Exercises/Elephant.java)
+    - [Helpful Maths](https://vjudge.net/problem/CodeForces-339A/origin) - [resolution](Exercises/helpful-maths.java)
     
