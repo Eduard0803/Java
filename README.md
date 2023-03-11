@@ -16,7 +16,9 @@ scripts feitos enquanto estudo Java
 - [string](Class/string.java) - classe com metodos para manipulações de strings
     - palindromo - metodo para verificar se uma string é um palindromo
     - scannerEOF - metodo para ler um string até o EOF - End Of File
-    - anagramas - metodo para verificar se duas palavras são anagramas 
+    - anagramas - metodo para verificar se duas palavras são anagramas  
+- [sort](Class/sort.java) - classe com metodos de ordenação de dados
+    - merge_sort - metodo para ordenar dados com o algoritmo 'merge_sort'
 
 # Exercícios
 
