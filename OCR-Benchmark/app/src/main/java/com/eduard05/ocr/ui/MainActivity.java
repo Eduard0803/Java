@@ -102,6 +102,9 @@ public class MainActivity extends AppCompatActivity {
                     String mimeType = cursor.getString(mimeIdx);
                     String documentId = cursor.getString(idIdx);
 
+                    if(!mimeType.split("/")[0].equals("image"))
+                        continue;
+
                     Uri documentUri = DocumentsContract.buildDocumentUriUsingTree(directoryUri, documentId);
                     Log.d("Document", "Name: " + displayName + ", MimeType: " + mimeType + ", Uri: " + documentUri.toString());
                     BackgroundTaskManager.createOCRProcessor(getApplicationContext(), documentUri.toString());
