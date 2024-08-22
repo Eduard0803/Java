@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.DocumentsContract;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -16,8 +17,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 
 import com.eduard05.ocr.R;
-import com.eduard05.ocr.data.local.db.localRepositories.RepositoryOCR;
+import com.eduard05.ocr.data.local.db.localRepositories.RepositoryOCRFrames;
+import com.eduard05.ocr.data.local.db.localRepositories.RepositoryOCRResult;
 import com.eduard05.ocr.works.BackgroundTaskManager;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 
 import org.w3c.dom.Text;
 
@@ -32,13 +36,24 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         TextView processTime = findViewById(R.id.text_view_process_time);
-        RepositoryOCR repositoryOCR = new RepositoryOCR(getApplicationContext());
-        repositoryOCR.getTotalExecTime().observe(this, new Observer<Long>() {
+//        processTime.setVisibility(View.GONE);
+        RepositoryOCRResult repositoryOCRResult = new RepositoryOCRResult(getApplicationContext());
+        repositoryOCRResult.getTotalExecTime().observe(this, new Observer<Long>() {
             @Override
             public void onChanged(Long time) {
-                processTime.setText((time == null ? 0 : time)+ " ms");
+                processTime.setText((time == null ? 0 : (time / 1_000_000.0) / 60)+ " m");
             }
         });
+
+        TextView countFrames = findViewById(R.id.text_view_process_frames_count);
+        RepositoryOCRFrames repositoryOCRFrames = new RepositoryOCRFrames(getApplicationContext());
+        repositoryOCRFrames.getCountFrames().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer count) {
+                countFrames.setText((count == null ? 0 : count) + " Frames");
+            }
+        });
+
 
         Button btnSelectDir = findViewById(R.id.btn_navigate);
         btnSelectDir.setOnClickListener(view -> pickDirectory());
@@ -60,7 +75,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void pickDirectory(){
-        new RepositoryOCR(getApplicationContext()).clearAll();
+        new RepositoryOCRResult(getApplicationContext()).clearAll();
+        new RepositoryOCRFrames(getApplicationContext()).clearAll();
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
@@ -70,6 +86,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void listFilesInDirectory(Uri directoryUri) {
         ContentResolver contentResolver = getContentResolver();
+
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        int resultCode = apiAvailability.isGooglePlayServicesAvailable(this);
+
+        Log.d("GOOGLE PLAY", "" + resultCode + " " + (resultCode == ConnectionResult.SUCCESS));
 
         String[] projection = new String[]{
                 DocumentsContract.Document.COLUMN_DISPLAY_NAME,
@@ -91,7 +112,6 @@ public class MainActivity extends AppCompatActivity {
                 long timeInit = System.currentTimeMillis();
                 long count = 0;
                 while (cursor.moveToNext()) {
-                    count++;
                     if(nameIdx == -1 || mimeIdx == -1 || idIdx == -1) {
                         Log.d("ERROR IN GET FILE", "NAME IDX --> " + nameIdx);
                         Log.d("ERROR IN GET FILE", "MIME IDX --> " + mimeIdx);
@@ -104,6 +124,7 @@ public class MainActivity extends AppCompatActivity {
 
                     if(!mimeType.split("/")[0].equals("image"))
                         continue;
+                    count++;
 
                     Uri documentUri = DocumentsContract.buildDocumentUriUsingTree(directoryUri, documentId);
                     Log.d("Document", "Name: " + displayName + ", MimeType: " + mimeType + ", Uri: " + documentUri.toString());

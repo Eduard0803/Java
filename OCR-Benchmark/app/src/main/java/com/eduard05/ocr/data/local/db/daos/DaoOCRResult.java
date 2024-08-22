@@ -10,7 +10,7 @@ import com.eduard05.ocr.data.local.db.entity.OCRResult;
 public interface DaoOCRResult extends DaoBase<OCRResult>{
 
     @Query("SELECT " +
-            "(SELECT MAX(ocr.timeEnd) FROM OCRResult ocr) - (SELECT MIN(ocr.timeInit) FROM OCRResult ocr) " +
+            "(SELECT ocr.timeEnd FROM OCRResult ocr ORDER BY ocr.timeEnd DESC LIMIT 1) - (SELECT ocr.timeInit FROM OCRResult ocr ORDER BY ocr.timeInit LIMIT 1) " +
             "AS totalExecTime")
     LiveData<Long> getTotalExecTime();
 

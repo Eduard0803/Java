@@ -8,8 +8,12 @@ import androidx.annotation.NonNull;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import com.eduard05.ocr.data.local.db.dto.OCRFrameDTO;
+import com.eduard05.ocr.data.local.db.entity.OCRFrame;
 import com.eduard05.ocr.data.local.db.entity.OCRResult;
-import com.eduard05.ocr.data.local.db.localRepositories.RepositoryOCR;
+import com.eduard05.ocr.data.local.db.localRepositories.RepositoryOCRFrames;
+import com.eduard05.ocr.data.local.db.localRepositories.RepositoryOCRResult;
+import com.eduard05.ocr.util.Util;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.mlkit.vision.common.InputImage;
@@ -27,11 +31,13 @@ public class OCRProcessorWork extends Worker {
 
     public OCRProcessorWork(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
+        Log.d("OCR PROCESSOR WORK", "INIT OCR PROCESSOR WORK");
     }
 
     @NonNull
     @Override
     public Result doWork() {
+        Log.d("OCR PROCESSOR WORK", "INIT METHOD `processOCR`");
         String filePath = getInputData().getString("filePath");
 
         CountDownLatch latch = new CountDownLatch(1);
@@ -66,7 +72,7 @@ public class OCRProcessorWork extends Worker {
         Uri uri = Uri.parse(filePath);
 
         return Completable.create( emitter -> {
-            long startTime = System.currentTimeMillis();
+            long startTime = Util.getTime();
 
             InputImage image = InputImage.fromFilePath(getApplicationContext(), uri);
 
@@ -76,9 +82,18 @@ public class OCRProcessorWork extends Worker {
                     .addOnSuccessListener(new OnSuccessListener<Text>() {
                         @Override
                         public void onSuccess(Text visionText) {
-                            long endTime = System.currentTimeMillis();
+                            long endTime = Util.getTime();
                             long processingTime = endTime - startTime;
-                            Log.d("OCR PROCESSING TIME", "Tempo de processamento: " + processingTime + " ms");
+                            OCRFrame ocrFrame = new OCRFrame(filePath);
+                            long id = new RepositoryOCRFrames(getApplicationContext()).insert(ocrFrame);
+                            ocrFrame.setId((int) id);
+                            OCRFrameDTO ocrFrameDTO = new RepositoryOCRFrames(getApplicationContext()).getById((int) id);
+                            Log.d("id", "ocrFrameDTO.getId() --> " + ocrFrameDTO.getId());
+                            Log.d("id", "ocrFrameDTO.getFramePath() --> " + ocrFrameDTO.getFramePath());
+                            Log.d("OCR PROCESSING TIME", "Tempo inicial: " + startTime + " ms");
+                            Log.d("OCR PROCESSING TIME", "Tempo final: " + endTime + " ms");
+                            Log.d("OCR PROCESSING TIME", "Tempo de processamento: " + processingTime + " ns");
+                            Log.d("OCR PROCESSING TIME", "Tempo de processamento: " + (processingTime / 1_000_000.0) / 60.0 + " m");
 
                             for ( Text.TextBlock tb: visionText.getTextBlocks())
                                 for (Text.Line tl : tb.getLines() )
@@ -95,7 +110,8 @@ public class OCRProcessorWork extends Worker {
                                                         ",\nBoundingBox.top: " + te.getBoundingBox().top +
                                                         "\n}"
                                         );
-                                        new RepositoryOCR(getApplicationContext()).insert(new OCRResult(
+                                        new RepositoryOCRResult(getApplicationContext()).insert(new OCRResult(
+                                                ocrFrameDTO.getId(),
                                                 te.getAngle(), te.getConfidence(), te.getText(),
                                                 te.getBoundingBox().bottom, te.getBoundingBox().top, te.getBoundingBox().right, te.getBoundingBox().left,
                                                 startTime, endTime

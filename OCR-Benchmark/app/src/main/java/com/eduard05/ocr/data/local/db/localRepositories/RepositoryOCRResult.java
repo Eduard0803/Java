@@ -6,8 +6,8 @@ import androidx.lifecycle.LiveData;
 
 import com.eduard05.ocr.data.local.db.entity.OCRResult;
 
-public class RepositoryOCR extends Repository<OCRResult>{
-    public RepositoryOCR(Context context){
+public class RepositoryOCRResult extends Repository<OCRResult>{
+    public RepositoryOCRResult(Context context){
         super(context);
         setDao(db.daoOCRResult());
     }

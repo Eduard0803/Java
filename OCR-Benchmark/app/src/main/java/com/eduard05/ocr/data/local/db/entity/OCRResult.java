@@ -9,6 +9,8 @@ public class OCRResult {
     @PrimaryKey(autoGenerate = true)
     private Integer id;
 
+    private int idFrame;
+
     private double angle;
     private double confidence;
     private String text;
@@ -21,7 +23,8 @@ public class OCRResult {
 
     public OCRResult(){}
 
-    public OCRResult(double angle, double confidence, String text, int bottom, int top, int right, int left, long timeInit, long timeEnd){
+    public OCRResult(int idFrame, double angle, double confidence, String text, int bottom, int top, int right, int left, long timeInit, long timeEnd){
+        this.idFrame = idFrame;
         this.angle = angle;
         this.confidence = confidence;
         this.text = text;
@@ -32,6 +35,9 @@ public class OCRResult {
         this.timeInit = timeInit;
         this.timeEnd = timeEnd;
     }
+
+    public int getIdFrame(){return this.idFrame;}
+    public void setIdFrame(int idFrame){this.idFrame = idFrame;}
 
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }

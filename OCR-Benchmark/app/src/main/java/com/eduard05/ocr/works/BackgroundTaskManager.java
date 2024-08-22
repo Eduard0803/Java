@@ -15,13 +15,14 @@ import java.util.concurrent.TimeUnit;
 public class BackgroundTaskManager {
 
     public static void createOCRProcessor(Context context, String filePath){
-        Log.d("OCR PROCESSOR", "INIT OCR PROCESSOR");
+        Log.d("OCR PROCESSOR", "INIT METHOD `createOCRProcessor`");
 
-
+        Log.d("OCR PROCESSOR", "SET UP CONSTRAINS");
         Constraints constraints = new Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build();
 
+        Log.d("OCR PROCESSOR", "CREATING WORKER");
         OneTimeWorkRequest uploadWorkRequest = new OneTimeWorkRequest.Builder(OCRProcessorWork.class)
                 .setConstraints(constraints)
                 .setInputData(new Data.Builder()
@@ -34,6 +35,7 @@ public class BackgroundTaskManager {
                         OneTimeWorkRequest.MIN_BACKOFF_MILLIS,
                         TimeUnit.MILLISECONDS)
                 .build();
+        Log.d("OCR PROCESSOR", "ENQUEUE WORKER");
         WorkManager.getInstance(context).enqueue(uploadWorkRequest);
     }
 }
