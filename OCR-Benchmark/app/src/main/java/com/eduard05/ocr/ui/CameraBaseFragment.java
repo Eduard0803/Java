@@ -4,17 +4,22 @@ import android.Manifest;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.util.Size;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -23,6 +28,7 @@ import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.Preview;
+import androidx.camera.core.VideoCapture;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
@@ -36,6 +42,9 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public abstract class CameraBaseFragment extends Fragment {
 
@@ -44,7 +53,6 @@ public abstract class CameraBaseFragment extends Fragment {
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE
     };
-
 
     private ProcessCameraProvider cameraProvider;
     private PreviewView previewView;
@@ -56,8 +64,19 @@ public abstract class CameraBaseFragment extends Fragment {
     protected ImageButton btnCapture;
     protected ImageButton btnStop;
 
+    private ImageView point1, point2, point3, point4;
+
+    private Handler captureHandler;
+    private Runnable captureRunnable;
 
     public CameraBaseFragment(){}
+
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        captureHandler = new Handler(Looper.getMainLooper());
+    }
 
     @Override
     public void onStart(){
@@ -77,13 +96,23 @@ public abstract class CameraBaseFragment extends Fragment {
         View cameraView = inflater.inflate(R.layout.fragment_camera, container, false);
 
         this.btnCapture = cameraView.findViewById(R.id.btn_camera_capture);
-        this.btnCapture.setOnClickListener(v -> capturePhoto());
+        this.btnCapture.setOnClickListener(v -> initCapture());
 
         this.btnStop = cameraView.findViewById(R.id.btn_stop_scan);
         this.btnStop.setOnClickListener(v -> stopCapture());
 
         this.previewView = cameraView.findViewById(R.id.previewView);
         this.cameraProviderFuture = ProcessCameraProvider.getInstance(getContext());
+
+        this.point1 = cameraView.findViewById(R.id.point1);
+        this.point2 = cameraView.findViewById(R.id.point2);
+        this.point3 = cameraView.findViewById(R.id.point3);
+        this.point4 = cameraView.findViewById(R.id.point4);
+        
+        setTouchListener(point1, point2, point3);
+        setTouchListener(point2, point1, point4);
+        setTouchListener(point3, point4, point1);
+        setTouchListener(point4, point3, point2);
 
         Util.requestPermission(PERMISSIONS, this);
 
@@ -92,9 +121,26 @@ public abstract class CameraBaseFragment extends Fragment {
 
     private void initCapture(){
         this.isRecording = true;
-        
-        while(this.isRecording)
-            capturePhoto();
+        this.btnCapture.setVisibility(View.GONE);
+        this.btnStop.setVisibility(View.VISIBLE);
+
+        captureRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if(isRecording){
+                    capturePhoto();
+                    captureHandler.postDelayed(this, 4000);
+                }
+            }
+        };
+        captureHandler.post(captureRunnable);
+    }
+
+    private void stopCapture(){
+        this.isRecording = false;
+        captureHandler.removeCallbacks(captureRunnable);
+        this.btnCapture.setVisibility(View.VISIBLE);
+        this.btnStop.setVisibility(View.GONE);
     }
 
     private void cameraStart() {
@@ -122,11 +168,6 @@ public abstract class CameraBaseFragment extends Fragment {
         Log.d("CameraStart", "Camera started with selector: " + cameraSelector.toString());
     }
 
-    private void stopCapture(){
-        this.isRecording = false;
-    }
-
-
     private void capturePhoto(){
         long timestamp = Util.getTime();
         String namePicture = timestamp + "";
@@ -145,14 +186,43 @@ public abstract class CameraBaseFragment extends Fragment {
             @Override
             public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
                 Log.d("outputFileResults", outputFileResults.getSavedUri().getPath());
-                successfulTakePicture(namePicture, timestamp, new File(Environment.getExternalStorageDirectory() + "/Pictures/OCR Benchmark Fotos", namePicture+".jpg"));
-                NavHostFragment.findNavController(getParentFragment()).navigate(R.id.action_cameraFragment_to_mainFragment);
+                successfulTakePicture(namePicture, timestamp, new File(Environment.getExternalStorageDirectory() + "/Pictures/OCR Benchmark Fotos", namePicture + ".jpg"));
+//                NavHostFragment.findNavController(getParentFragment()).navigate(R.id.action_cameraFragment_to_mainFragment);
             }
 
             @Override
             public void onError(@NonNull ImageCaptureException exception) {
                 Log.e("CapturePhotoError", "Capture request failed with reason: " + exception.getMessage());
                 Toast.makeText(getContext(), "Error saving photo: " + exception.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void setTouchListener(final ImageView point, final ImageView horizontalPoint, final ImageView verticalPoint) {
+        point.setOnTouchListener(new View.OnTouchListener() {
+            private float dX, dY;
+
+            @Override
+            public boolean onTouch(View view, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        dX = view.getX() - event.getRawX();
+                        dY = view.getY() - event.getRawY();
+                        return true;
+                    case MotionEvent.ACTION_MOVE:
+                        float newX = event.getRawX() + dX;
+                        float newY = event.getRawY() + dY;
+
+                        view.animate().x(newX).y(newY).setDuration(0).start();
+
+                        horizontalPoint.animate().y(newY).setDuration(0).start();
+
+                        verticalPoint.animate().x(newX).setDuration(0).start();
+
+                        return true;
+                    default:
+                        return false;
+                }
             }
         });
     }
