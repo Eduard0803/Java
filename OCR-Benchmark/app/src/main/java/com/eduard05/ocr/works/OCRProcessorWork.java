@@ -73,6 +73,7 @@ public class OCRProcessorWork extends Worker {
 
         return Completable.create( emitter -> {
             long startTime = Util.getTime();
+            String[] results = new String[]{""};
 
             InputImage image = InputImage.fromFilePath(getApplicationContext(), uri);
 
@@ -92,8 +93,7 @@ public class OCRProcessorWork extends Worker {
                             Log.d("id", "ocrFrameDTO.getFramePath() --> " + ocrFrameDTO.getFramePath());
                             Log.d("OCR PROCESSING TIME", "Tempo inicial: " + startTime + " ms");
                             Log.d("OCR PROCESSING TIME", "Tempo final: " + endTime + " ms");
-                            Log.d("OCR PROCESSING TIME", "Tempo de processamento: " + processingTime + " ns");
-                            Log.d("OCR PROCESSING TIME", "Tempo de processamento: " + (processingTime / 1_000_000.0) / 60.0 + " m");
+                            Log.d("OCR PROCESSING TIME", "Tempo de processamento: " + (processingTime / 1_000_000.0) + " s");
 
                             for ( Text.TextBlock tb: visionText.getTextBlocks())
                                 for (Text.Line tl : tb.getLines() )

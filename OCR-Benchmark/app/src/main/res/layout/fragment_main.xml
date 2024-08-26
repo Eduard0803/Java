@@ -27,7 +27,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Select Directory"
-        android:layout_marginBottom="100dp"
+        android:layout_marginBottom="50dp"
         android:layout_centerInParent="true"/>
 
     <Button
@@ -35,7 +35,25 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Take picture"
+        android:layout_marginBottom="50dp"
         android:layout_below="@+id/btn_navigate"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:id="@+id/btn_to_export_result"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Export results"
+        android:layout_marginBottom="50dp"
+        android:layout_below="@+id/btn_to_camera"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:id="@+id/btn_to_clear_results"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Clear results"
+        android:layout_below="@+id/btn_to_export_result"
         android:layout_centerHorizontal="true" />
 
 </RelativeLayout>

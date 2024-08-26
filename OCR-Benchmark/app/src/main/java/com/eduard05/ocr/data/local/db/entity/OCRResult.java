@@ -1,9 +1,14 @@
 package com.eduard05.ocr.data.local.db.entity;
 
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
-@Entity
+@Entity(
+        foreignKeys = {
+                @ForeignKey(entity = OCRFrame.class, parentColumns = "id", childColumns = "idFrame")
+        }
+)
 public class OCRResult {
 
     @PrimaryKey(autoGenerate = true)

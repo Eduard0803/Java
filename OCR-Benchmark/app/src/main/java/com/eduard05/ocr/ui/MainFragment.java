@@ -6,13 +6,16 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -22,17 +25,25 @@ import androidx.lifecycle.Observer;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.eduard05.ocr.R;
+import com.eduard05.ocr.data.local.db.dto.OCRResultDTO;
 import com.eduard05.ocr.data.local.db.localRepositories.RepositoryOCRFrames;
 import com.eduard05.ocr.data.local.db.localRepositories.RepositoryOCRResult;
 import com.eduard05.ocr.util.Util;
 import com.eduard05.ocr.works.BackgroundTaskManager;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainFragment extends Fragment {
 
     private final String[]  PERMISSIONS =  {
             Manifest.permission.CAMERA,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.MANAGE_EXTERNAL_STORAGE,
     };
 
     private ActivityResultLauncher<Intent> pickDirectoryLauncher;
@@ -43,7 +54,7 @@ public class MainFragment extends Fragment {
 
 
         TextView processTime = view.findViewById(R.id.text_view_process_time);
-//        processTime.setVisibility(View.GONE);
+        processTime.setVisibility(View.GONE);
         RepositoryOCRResult repositoryOCRResult = new RepositoryOCRResult(getContext());
         repositoryOCRResult.getTotalExecTime().observe((LifecycleOwner) getContext(), new Observer<Long>() {
             @Override
@@ -66,6 +77,24 @@ public class MainFragment extends Fragment {
 
         Button btnCamera = view.findViewById(R.id.btn_to_camera);
         btnCamera.setOnClickListener(v -> redirectToCamera());
+
+        Button btnExportResults = view.findViewById(R.id.btn_to_export_result);
+        btnExportResults.setOnClickListener(v -> exportResults());
+
+        Button btnClearResults = view.findViewById(R.id.btn_to_clear_results);
+        btnClearResults.setOnClickListener(v -> {
+            new RepositoryOCRResult(getContext()).clearAll();
+            new RepositoryOCRFrames(getContext()).clearAll();
+
+            File directory = new File(Environment.getExternalStorageDirectory() + "/OCR Benchmark Results/");
+            if (!directory.exists()) {
+                boolean hasCreated = directory.mkdirs();
+                Log.d("DEBUG", "hasCreated --> " + hasCreated);
+            }
+
+            File fileOutput = new File(directory, "result.json.txt");
+            fileOutput.delete();
+        });
 
         pickDirectoryLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -90,6 +119,49 @@ public class MainFragment extends Fragment {
     private void redirectToCamera(){
         Log.d("TAKE PICTURE", "BUTTON `TAKE PICTURE` HAS CLICKED");
         NavHostFragment.findNavController(MainFragment.this).navigate(R.id.camera_fragment);
+    }
+
+    private void exportResults(){
+        List<String> output = new ArrayList<>();
+        List<OCRResultDTO> results = new RepositoryOCRResult(getContext()).getAll();
+
+        results.forEach(r -> {
+            output.add(
+                    "{" +
+                            "\n\"idFrame\": \"" + r.getIdFrame() + "\"," +
+                            "\n\"framePath\": \"" + r.getFramePath() + "\"," +
+                            "\n\"processingTime\": \"" + r.getProcessingTime() + "\"," +
+                            "\n\"angle\": " + r.getAngle() + "," +
+                            "\n\"confidence\": " + r.getConfidence() + "," +
+                            "\n\"text\": \"" + r.getText() + "\"," +
+                            "\n\"BoundingBox.bottom\": " + r.getBottom() + "," +
+                            "\n\"BoundingBox.left\": " + r.getLeft() + "," +
+                            "\n\"BoundingBox.right\": " + r.getRight() + "," +
+                            "\n\"BoundingBox.top\": " + r.getTop() +
+                            "\n}"
+            );
+        });
+
+
+        File directory = new File(Environment.getExternalStorageDirectory() + "/OCR Benchmark Results/");
+        if (!directory.exists()) {
+            boolean hasCreated = directory.mkdirs();
+            Log.d("DEBUG", "hasCreated --> " + hasCreated);
+        }
+
+        File fileOutput = new File(directory, "result.json.txt");
+        FileOutputStream fos = null;
+        try{
+            fos = new FileOutputStream(fileOutput);
+            String strOutput = String.join(",\n", output);
+            strOutput = "[" + strOutput + "]";
+            fos.write(strOutput.getBytes());
+            fos.flush();
+            Toast.makeText(getContext(), "CREATED OUTPUT FILE IN 'OCR BENCHMARK RESULTS/result.json.txt' --> ", Toast.LENGTH_LONG).show();
+        } catch(Exception e){
+            Log.e("DEBUG", "ERROR TO CREATE OUTPUT FILE --> " + e.getMessage());
+            Toast.makeText(getContext(), "ERROR TO CREATE OUTPUT FILE --> " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
 

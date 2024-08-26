@@ -2,6 +2,8 @@ package com.eduard05.ocr.ui;
 
 import android.content.ContentUris;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -20,19 +22,8 @@ public class CameraFragment extends CameraBaseFragment {
     }
 
     @Override
-    protected void successfulTakePicture(String namePicture, Long timestamp, File file) {
+    protected void successfulTakePicture(String namePicture, Long timestamp, File file, double[] x, double[] y) {
         Log.d("sucessfulTakePicture", namePicture);
-
-        Log.d("URI", "file.getPath() --> " + file.getPath());
-        Log.d("URI", "file.getAbsolutePath() --> " + file.getAbsolutePath());
-        Log.d("URI", "file.getParent() --> " + file.getParent());
-
-        Log.d("URI", "FILE EXISTS? --> " + file.exists());
-        Log.d("URI", "FILE CAN READ? --> " + file.canRead());
-
-        Log.d("URI", "file.setReadable(true) --> " + file.setReadable(true));
-
-        Log.d("URI", "FILE CAN READ AFTER? --> " + file.canRead());
 
         Uri uri = null;
         String[] projection = {MediaStore.Images.Media._ID};
@@ -51,6 +42,18 @@ public class CameraFragment extends CameraBaseFragment {
         int id = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
         uri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
         cursor.close();
+
+        Log.d("DEBUG", "URI --> " + uri.getPath());
+
+        Bitmap fileBitmap = BitmapFactory.decodeFile(uri.getPath());
+
+//        Log.d("DEBUG", "X --> " + (int) Math.round(x[1]));
+//        Log.d("DEBUG", "Y --> " + (int) Math.round(x[2]));
+//        Log.d("DEBUG", "HEIGHT --> " + (int) Math.round(x[1]-x[0]));
+//        Log.d("DEBUG", "WIDTH --> " + (int) Math.round(y[2]-y[1]));
+//        Bitmap croppedImage = Bitmap.createBitmap(fileBitmap,
+//                (int) Math.round(x[1]), (int) Math.round(y[2]), (int) Math.round(x[1]-x[0]), (int) Math.round(y[2]-y[1])
+//        );
 
         BackgroundTaskManager.createOCRProcessor(getContext(), uri.toString());
     }

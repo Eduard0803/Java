@@ -11,7 +11,7 @@ import com.eduard05.ocr.data.local.db.entity.OCRResult;
 @Database(entities = {
         OCRFrame.class,
         OCRResult.class,
-}, version = 2)
+}, version = 3)
 public abstract class AppDatabase extends RoomDatabase {
     public abstract DaoOCRFrame daoOCRFrame();
     public abstract DaoOCRResult daoOCRResult();

@@ -69,6 +69,9 @@ public abstract class CameraBaseFragment extends Fragment {
     private Handler captureHandler;
     private Runnable captureRunnable;
 
+    private long countPhotos = 0;
+    private long LIMIT_PHOTOS = 5;
+
     public CameraBaseFragment(){}
 
 
@@ -81,6 +84,7 @@ public abstract class CameraBaseFragment extends Fragment {
     @Override
     public void onStart(){
         super.onStart();
+        this.countPhotos = 0;
         cameraProviderFuture.addListener(() -> {
             try{
                 this.cameraProvider = cameraProviderFuture.get();
@@ -129,7 +133,7 @@ public abstract class CameraBaseFragment extends Fragment {
             public void run() {
                 if(isRecording){
                     capturePhoto();
-                    captureHandler.postDelayed(this, 4000);
+                    captureHandler.postDelayed(this, 100);
                 }
             }
         };
@@ -137,6 +141,7 @@ public abstract class CameraBaseFragment extends Fragment {
     }
 
     private void stopCapture(){
+        this.countPhotos = 0;
         this.isRecording = false;
         captureHandler.removeCallbacks(captureRunnable);
         this.btnCapture.setVisibility(View.VISIBLE);
@@ -169,6 +174,9 @@ public abstract class CameraBaseFragment extends Fragment {
     }
 
     private void capturePhoto(){
+        this.countPhotos++;
+        if(countPhotos == LIMIT_PHOTOS)
+            stopCapture();
         long timestamp = Util.getTime();
         String namePicture = timestamp + "";
 
@@ -186,7 +194,15 @@ public abstract class CameraBaseFragment extends Fragment {
             @Override
             public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
                 Log.d("outputFileResults", outputFileResults.getSavedUri().getPath());
-                successfulTakePicture(namePicture, timestamp, new File(Environment.getExternalStorageDirectory() + "/Pictures/OCR Benchmark Fotos", namePicture + ".jpg"));
+                Log.d("POINTERS", "P1 x = " + point1.getX() + " y = " + point1.getY());
+                Log.d("POINTERS", "P2 x = " + point2.getX() + " y = " + point2.getY());
+                Log.d("POINTERS", "P3 x = " + point3.getX() + " y = " + point3.getY());
+                Log.d("POINTERS", "P4 x = " + point4.getX() + " y = " + point4.getY());
+                successfulTakePicture(namePicture, timestamp,
+                        new File(Environment.getExternalStorageDirectory() + "/Pictures/OCR Benchmark Fotos", namePicture + ".jpg"),
+                        new double[] {point1.getX(), point2.getX(), point3.getX(), point4.getX()},
+                        new double[] {point1.getY(), point2.getY(), point3.getY(), point4.getY()}
+                );
 //                NavHostFragment.findNavController(getParentFragment()).navigate(R.id.action_cameraFragment_to_mainFragment);
             }
 
@@ -227,6 +243,6 @@ public abstract class CameraBaseFragment extends Fragment {
         });
     }
 
-    abstract protected void successfulTakePicture(String namePicture, Long timestamp, File file);
+    abstract protected void successfulTakePicture(String namePicture, Long timestamp, File file, double[] x, double[] y);
     abstract protected String getComplementName();
 }
