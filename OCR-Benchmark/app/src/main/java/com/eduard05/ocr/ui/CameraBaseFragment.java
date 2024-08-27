@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.media.AudioManager;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Build;
@@ -14,6 +15,7 @@ import android.os.Looper;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.util.Size;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -94,6 +96,34 @@ public abstract class CameraBaseFragment extends Fragment {
             }
         }, ContextCompat.getMainExecutor(getContext()));
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        requireActivity().setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        requireActivity().getWindow().getDecorView().setFocusableInTouchMode(true);
+        requireActivity().getWindow().getDecorView().requestFocus();
+        requireActivity().getWindow().getDecorView().setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                    if (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+                        initCapture();
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        requireActivity().getWindow().getDecorView().setOnKeyListener(null);
+    }
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -185,7 +215,7 @@ public abstract class CameraBaseFragment extends Fragment {
         contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            contentValues.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/OCR Benchmark Fotos");
+            contentValues.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/OCR Benchmark");
         }
 
         ImageCapture.OutputFileOptions outputFileOptions = new ImageCapture.OutputFileOptions.Builder( getActivity().getContentResolver(), MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues ).build();
@@ -199,7 +229,7 @@ public abstract class CameraBaseFragment extends Fragment {
                 Log.d("POINTERS", "P3 x = " + point3.getX() + " y = " + point3.getY());
                 Log.d("POINTERS", "P4 x = " + point4.getX() + " y = " + point4.getY());
                 successfulTakePicture(namePicture, timestamp,
-                        new File(Environment.getExternalStorageDirectory() + "/Pictures/OCR Benchmark Fotos", namePicture + ".jpg"),
+                        new File(Environment.getExternalStorageDirectory() + "/Pictures/OCR Benchmark", namePicture + ".jpg"),
                         new double[] {point1.getX(), point2.getX(), point3.getX(), point4.getX()},
                         new double[] {point1.getY(), point2.getY(), point3.getY(), point4.getY()}
                 );

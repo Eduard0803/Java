@@ -2,9 +2,11 @@ package com.eduard05.ocr.ui;
 
 import android.Manifest;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.DocumentsContract;
@@ -25,15 +27,19 @@ import androidx.lifecycle.Observer;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.eduard05.ocr.R;
+import com.eduard05.ocr.data.local.db.dto.OCRFrameDTO;
 import com.eduard05.ocr.data.local.db.dto.OCRResultDTO;
 import com.eduard05.ocr.data.local.db.localRepositories.RepositoryOCRFrames;
 import com.eduard05.ocr.data.local.db.localRepositories.RepositoryOCRResult;
 import com.eduard05.ocr.util.Util;
 import com.eduard05.ocr.works.BackgroundTaskManager;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,20 +52,27 @@ public class MainFragment extends Fragment {
             Manifest.permission.MANAGE_EXTERNAL_STORAGE,
     };
 
+    private Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
     private ActivityResultLauncher<Intent> pickDirectoryLauncher;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_main, container, false);
 
-
         TextView processTime = view.findViewById(R.id.text_view_process_time);
-        processTime.setVisibility(View.GONE);
+//        processTime.setVisibility(View.GONE);
         RepositoryOCRResult repositoryOCRResult = new RepositoryOCRResult(getContext());
-        repositoryOCRResult.getTotalExecTime().observe((LifecycleOwner) getContext(), new Observer<Long>() {
+//        repositoryOCRResult.getTotalExecTime().observe((LifecycleOwner) getContext(), new Observer<Long>() {
+//            @Override
+//            public void onChanged(Long time) {
+//                processTime.setText((time == null ? 0 : (time / 1_000_000.0))+ " m");
+//            }
+//        });
+        repositoryOCRResult.getAvgExecTime().observe((LifecycleOwner) getContext(), new Observer<Long>() {
             @Override
             public void onChanged(Long time) {
-                processTime.setText((time == null ? 0 : (time / 1_000_000.0) / 60)+ " m");
+                processTime.setText("Tempo médio OCR: " + (time == null ? 0 : (time / 1_000_000.0))+ "s");
             }
         });
 
@@ -86,14 +99,9 @@ public class MainFragment extends Fragment {
             new RepositoryOCRResult(getContext()).clearAll();
             new RepositoryOCRFrames(getContext()).clearAll();
 
-            File directory = new File(Environment.getExternalStorageDirectory() + "/OCR Benchmark Results/");
-            if (!directory.exists()) {
-                boolean hasCreated = directory.mkdirs();
-                Log.d("DEBUG", "hasCreated --> " + hasCreated);
-            }
-
-            File fileOutput = new File(directory, "result.json.txt");
-            fileOutput.delete();
+            File directory = new File(Environment.getExternalStorageDirectory() + "/OCR Benchmark/");
+            if(directory.exists())
+                directory.delete();
         });
 
         pickDirectoryLauncher = registerForActivityResult(
@@ -121,49 +129,47 @@ public class MainFragment extends Fragment {
         NavHostFragment.findNavController(MainFragment.this).navigate(R.id.camera_fragment);
     }
 
-    private void exportResults(){
-        List<String> output = new ArrayList<>();
-        List<OCRResultDTO> results = new RepositoryOCRResult(getContext()).getAll();
+    public void exportResults() {
+        ContentResolver resolver = getContext().getContentResolver();
+        ContentValues contentValues = new ContentValues();
 
-        results.forEach(r -> {
-            output.add(
-                    "{" +
-                            "\n\"idFrame\": \"" + r.getIdFrame() + "\"," +
-                            "\n\"framePath\": \"" + r.getFramePath() + "\"," +
-                            "\n\"processingTime\": \"" + r.getProcessingTime() + "\"," +
-                            "\n\"angle\": " + r.getAngle() + "," +
-                            "\n\"confidence\": " + r.getConfidence() + "," +
-                            "\n\"text\": \"" + r.getText() + "\"," +
-                            "\n\"BoundingBox.bottom\": " + r.getBottom() + "," +
-                            "\n\"BoundingBox.left\": " + r.getLeft() + "," +
-                            "\n\"BoundingBox.right\": " + r.getRight() + "," +
-                            "\n\"BoundingBox.top\": " + r.getTop() +
-                            "\n}"
-            );
-        });
+        contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, Util.getTime() + ".json.txt");
+        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "text/plain");
+        contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOCUMENTS + "/OCR Benchmark/results/");
 
+        OutputStream fos = null;
+        try {
+            fos = resolver.openOutputStream(resolver.insert(MediaStore.Files.getContentUri("external"), contentValues));
 
-        File directory = new File(Environment.getExternalStorageDirectory() + "/OCR Benchmark Results/");
-        if (!directory.exists()) {
-            boolean hasCreated = directory.mkdirs();
-            Log.d("DEBUG", "hasCreated --> " + hasCreated);
-        }
+            if (fos != null) {
+                List<String> output = new ArrayList<>();
 
-        File fileOutput = new File(directory, "result.json.txt");
-        FileOutputStream fos = null;
-        try{
-            fos = new FileOutputStream(fileOutput);
-            String strOutput = String.join(",\n", output);
-            strOutput = "[" + strOutput + "]";
-            fos.write(strOutput.getBytes());
-            fos.flush();
-            Toast.makeText(getContext(), "CREATED OUTPUT FILE IN 'OCR BENCHMARK RESULTS/result.json.txt' --> ", Toast.LENGTH_LONG).show();
-        } catch(Exception e){
-            Log.e("DEBUG", "ERROR TO CREATE OUTPUT FILE --> " + e.getMessage());
-            Toast.makeText(getContext(), "ERROR TO CREATE OUTPUT FILE --> " + e.getMessage(), Toast.LENGTH_LONG).show();
+                List<OCRFrameDTO> frames = new RepositoryOCRResult(getContext()).getAll();
+                frames.forEach(frame -> {
+                    Log.d("JSON", gson.toJson(frame));
+                    output.add(gson.toJson(frame));
+                });
+
+                String strOutput = String.join(",\n", output);
+                strOutput = "[" + strOutput + "]";
+                fos.write(strOutput.getBytes());
+                fos.flush();
+
+                Toast.makeText(getContext(), "File saved in OCR Benchmark Results folder", Toast.LENGTH_LONG).show();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(getContext(), "Failed to save file: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        } finally {
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
-
 
     private void pickDirectory(){
         new RepositoryOCRResult(getContext()).clearAll();

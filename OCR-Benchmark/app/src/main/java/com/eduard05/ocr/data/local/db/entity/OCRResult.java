@@ -23,12 +23,10 @@ public class OCRResult {
     private int boundingBoxTop;
     private int boundingBoxLeft;
     private int boundingBoxRight;
-    private long timeInit;
-    private long timeEnd;
 
     public OCRResult(){}
 
-    public OCRResult(int idFrame, double angle, double confidence, String text, int bottom, int top, int right, int left, long timeInit, long timeEnd){
+    public OCRResult(int idFrame, double angle, double confidence, String text, int bottom, int top, int right, int left){
         this.idFrame = idFrame;
         this.angle = angle;
         this.confidence = confidence;
@@ -37,8 +35,6 @@ public class OCRResult {
         this.boundingBoxTop = top;
         this.boundingBoxLeft = left;
         this.boundingBoxRight = right;
-        this.timeInit = timeInit;
-        this.timeEnd = timeEnd;
     }
 
     public int getIdFrame(){return this.idFrame;}
@@ -67,10 +63,4 @@ public class OCRResult {
 
     public int getBoundingBoxRight() { return boundingBoxRight; }
     public void setBoundingBoxRight(int boundingBoxRight) { this.boundingBoxRight = boundingBoxRight; }
-
-    public long getTimeInit() { return timeInit; }
-    public void setTimeInit(long timeInit) { this.timeInit = timeInit; }
-
-    public long getTimeEnd() { return timeEnd; }
-    public void setTimeEnd(long timeEnd) { this.timeEnd = timeEnd; }
 }
