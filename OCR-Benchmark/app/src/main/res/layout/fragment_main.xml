@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/MainFragment">
+
+    <TextView
+        android:id="@+id/text_view_process_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/text_view_process_frames_count"
+        android:layout_marginBottom="50dp"
+        android:textAlignment="center"
+        android:text="0 ms" />
+
+    <TextView
+        android:id="@+id/text_view_process_frames_count"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/btn_navigate"
+        android:layout_marginBottom="100dp"
+        android:textAlignment="center"
+        android:text="0 Frames" />
+
+    <Button
+        android:id="@+id/btn_navigate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select Directory"
+        android:layout_marginBottom="50dp"
+        android:layout_centerInParent="true"/>
+
+    <Button
+        android:id="@+id/btn_to_camera"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Take picture"
+        android:layout_marginBottom="50dp"
+        android:layout_below="@+id/btn_navigate"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:id="@+id/btn_to_export_result"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Export results"
+        android:layout_marginBottom="50dp"
+        android:layout_below="@+id/btn_to_camera"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:id="@+id/btn_to_clear_results"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Clear results"
+        android:layout_below="@+id/btn_to_export_result"
+        android:layout_centerHorizontal="true" />
+
+</RelativeLayout>

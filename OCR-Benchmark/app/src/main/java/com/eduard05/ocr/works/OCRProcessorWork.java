@@ -68,11 +68,11 @@ public class OCRProcessorWork extends Worker {
     public Completable processOCR(String filePath){
         Log.d("OCR PROCESSOR", "INIT METHOD `public Completable processOCR(String filePath)` TO FILE `" + filePath +"`");
 
-//        File file = new File(filePath);
         Uri uri = Uri.parse(filePath);
 
         return Completable.create( emitter -> {
             long startTime = Util.getTime();
+            String[] results = new String[]{""};
 
             InputImage image = InputImage.fromFilePath(getApplicationContext(), uri);
 
@@ -83,21 +83,15 @@ public class OCRProcessorWork extends Worker {
                         @Override
                         public void onSuccess(Text visionText) {
                             long endTime = Util.getTime();
-                            long processingTime = endTime - startTime;
-                            OCRFrame ocrFrame = new OCRFrame(filePath);
+                            OCRFrame ocrFrame = new OCRFrame(filePath, startTime, endTime);
                             long id = new RepositoryOCRFrames(getApplicationContext()).insert(ocrFrame);
                             ocrFrame.setId((int) id);
                             OCRFrameDTO ocrFrameDTO = new RepositoryOCRFrames(getApplicationContext()).getById((int) id);
-                            Log.d("id", "ocrFrameDTO.getId() --> " + ocrFrameDTO.getId());
-                            Log.d("id", "ocrFrameDTO.getFramePath() --> " + ocrFrameDTO.getFramePath());
-                            Log.d("OCR PROCESSING TIME", "Tempo inicial: " + startTime + " ms");
-                            Log.d("OCR PROCESSING TIME", "Tempo final: " + endTime + " ms");
-                            Log.d("OCR PROCESSING TIME", "Tempo de processamento: " + processingTime + " ns");
-                            Log.d("OCR PROCESSING TIME", "Tempo de processamento: " + (processingTime / 1_000_000.0) / 60.0 + " m");
+                            Log.d("OCR PROCESSING TIME", "id: " + id +" Tempo de processamento: " + (endTime - startTime / 1_000_000.0) + " s");
 
-                            for ( Text.TextBlock tb: visionText.getTextBlocks())
-                                for (Text.Line tl : tb.getLines() )
-                                    for (Text.Element te : tl.getElements()) {
+                            for(Text.TextBlock tb: visionText.getTextBlocks())
+                                for(Text.Line tl : tb.getLines() )
+                                    for(Text.Element te : tl.getElements()) {
                                         Log.d(
                                                 "OCR RESULT",
                                                 "OCR RESULT{" +
@@ -113,8 +107,7 @@ public class OCRProcessorWork extends Worker {
                                         new RepositoryOCRResult(getApplicationContext()).insert(new OCRResult(
                                                 ocrFrameDTO.getId(),
                                                 te.getAngle(), te.getConfidence(), te.getText(),
-                                                te.getBoundingBox().bottom, te.getBoundingBox().top, te.getBoundingBox().right, te.getBoundingBox().left,
-                                                startTime, endTime
+                                                te.getBoundingBox().bottom, te.getBoundingBox().top, te.getBoundingBox().right, te.getBoundingBox().left
                                         ));
                                     }
                             emitter.onComplete();

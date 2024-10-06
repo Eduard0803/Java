@@ -12,7 +12,7 @@ public interface DaoOCRFrame extends DaoBase<OCRFrame>{
     @Query("SELECT COUNT(id) AS countFrames FROM OCRFrame")
     LiveData<Integer> getCountFrames();
 
-    @Query("SELECT ocr.id AS id, ocr.framePath AS framePath from OCRFrame ocr WHERE id = :id")
+    @Query("SELECT ocr.id, ocr.framePath, ((ocr.endTime - ocr.startTime) / 1000000) AS processingTime from OCRFrame ocr WHERE id = :id")
     OCRFrameDTO getById(int id);
 
     @Query("DELETE FROM OCRFrame")
