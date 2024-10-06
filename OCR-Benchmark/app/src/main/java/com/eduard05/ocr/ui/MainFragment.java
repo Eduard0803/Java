@@ -94,9 +94,6 @@ public class MainFragment extends Fragment {
         Button btnExportResults = view.findViewById(R.id.btn_to_export_result);
         btnExportResults.setOnClickListener(v -> exportResults());
 
-        Button btnDetect = view.findViewById(R.id.btn_to_detect);
-        btnDetect.setOnClickListener(v -> {});
-
         Button btnClearResults = view.findViewById(R.id.btn_to_clear_results);
         btnClearResults.setOnClickListener(v -> {
             new RepositoryOCRResult(getContext()).clearAll();
@@ -127,10 +124,10 @@ public class MainFragment extends Fragment {
         return view;
     }
 
-    private void redirectToCameraDetect(){
-        Log.d("TAKE PICTURE", "BUTTON `DETECT` HAS CLICKED");
-        NavHostFragment.findNavController(MainFragment.this).navigate(R.);
-    }
+//    private void redirectToCameraDetect(){
+//        Log.d("TAKE PICTURE", "BUTTON `DETECT` HAS CLICKED");
+//        NavHostFragment.findNavController(MainFragment.this).navigate(R.);
+//    }
 
     private void redirectToCamera(){
         Log.d("TAKE PICTURE", "BUTTON `TAKE PICTURE` HAS CLICKED");

@@ -77,7 +77,7 @@ public abstract class CameraBaseFragment extends Fragment {
     private Runnable captureRunnable;
 
     private long countPhotos = 0;
-    private long LIMIT_PHOTOS = 5;
+    private long LIMIT_PHOTOS = 1;
 
     public CameraBaseFragment(){}
 
