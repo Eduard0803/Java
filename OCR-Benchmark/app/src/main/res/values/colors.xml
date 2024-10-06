@@ -28,5 +28,7 @@
     <color name="warning_background">#ffcc00</color>
     <color name="color_background">#30F9CEB2</color>
     <color name="title_detailfragment">#57687F</color>
+    <color name="opaque_black">#80000000</color>
+    <color name="transparent">#00000000</color>
 </resources>
 

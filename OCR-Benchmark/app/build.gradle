@@ -43,6 +43,7 @@ dependencies {
 
     implementation 'com.google.mlkit:barcode-scanning:17.1.0'
     implementation 'com.google.android.gms:play-services-mlkit-text-recognition:19.0.0'
+    implementation 'com.google.mlkit:object-detection:17.0.0'
 
     implementation 'org.tensorflow:tensorflow-lite-gpu-delegate-plugin:0.4.0'
     implementation 'org.tensorflow:tensorflow-lite-gpu:2.9.0'

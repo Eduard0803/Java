@@ -68,7 +68,6 @@ public class OCRProcessorWork extends Worker {
     public Completable processOCR(String filePath){
         Log.d("OCR PROCESSOR", "INIT METHOD `public Completable processOCR(String filePath)` TO FILE `" + filePath +"`");
 
-//        File file = new File(filePath);
         Uri uri = Uri.parse(filePath);
 
         return Completable.create( emitter -> {

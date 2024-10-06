@@ -40,12 +40,21 @@
         android:layout_centerHorizontal="true" />
 
     <Button
+        android:id="@+id/btn_to_detect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Detect"
+        android:layout_marginBottom="50dp"
+        android:layout_below="@+id/btn_to_camera"
+        android:layout_centerHorizontal="true" />
+
+    <Button
         android:id="@+id/btn_to_export_result"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Export results"
         android:layout_marginBottom="50dp"
-        android:layout_below="@+id/btn_to_camera"
+        android:layout_below="@+id/btn_to_detect"
         android:layout_centerHorizontal="true" />
 
     <Button

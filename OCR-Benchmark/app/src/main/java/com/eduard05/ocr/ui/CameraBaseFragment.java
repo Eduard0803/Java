@@ -4,6 +4,8 @@ import android.Manifest;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.drawable.AnimationDrawable;
 import android.media.AudioManager;
 import android.media.MediaRecorder;
 import android.net.Uri;
@@ -20,6 +22,8 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -67,6 +71,7 @@ public abstract class CameraBaseFragment extends Fragment {
     protected ImageButton btnStop;
 
     private ImageView point1, point2, point3, point4;
+    private View rect;
 
     private Handler captureHandler;
     private Runnable captureRunnable;
@@ -148,6 +153,15 @@ public abstract class CameraBaseFragment extends Fragment {
         setTouchListener(point3, point4, point1);
         setTouchListener(point4, point3, point2);
 
+        this.point1.setVisibility(View.GONE);
+        this.point2.setVisibility(View.GONE);
+        this.point3.setVisibility(View.GONE);
+        this.point4.setVisibility(View.GONE);
+
+        this.rect = cameraView.findViewById(R.id.rect);
+        this.rect.setX(point1.getX());
+        this.rect.setY(point2.getY());
+
         Util.requestPermission(PERMISSIONS, this);
 
         return cameraView;
@@ -184,18 +198,11 @@ public abstract class CameraBaseFragment extends Fragment {
 
         cameraSelector = new CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build();
 
-
         preview.setSurfaceProvider(previewView.getSurfaceProvider());
 
         imageCapture = new ImageCapture.Builder()
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
                 .setFlashMode(ImageCapture.FLASH_MODE_OFF)
-                .build();
-
-        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
-                .setTargetResolution(new Size(1280, 729))
-                .setImageQueueDepth(15)
-                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build();
 
         cameraProvider.bindToLifecycle((LifecycleOwner) this, cameraSelector, preview, imageCapture);
@@ -233,7 +240,6 @@ public abstract class CameraBaseFragment extends Fragment {
                         new double[] {point1.getX(), point2.getX(), point3.getX(), point4.getX()},
                         new double[] {point1.getY(), point2.getY(), point3.getY(), point4.getY()}
                 );
-//                NavHostFragment.findNavController(getParentFragment()).navigate(R.id.action_cameraFragment_to_mainFragment);
             }
 
             @Override
