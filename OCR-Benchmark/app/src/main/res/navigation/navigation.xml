@@ -22,7 +22,7 @@
     <fragment
         android:id="@+id/detect_camera_fragment"
         android:name="com.eduard05.ocr.ui.CameraObjectDetect" >
-        <action android:id="@+id/action_cameraFragment_to_cameraObjectDetect"
-            app:destination="@+id/Came" />
+        <action android:id="@+id/action_cameraObjectDetect_to_mainFragment"
+            app:destination="@+id/main_fragment" />
     </fragment>
 </navigation>

@@ -131,7 +131,7 @@ public class MainFragment extends Fragment {
 
     private void redirectToCamera(){
         Log.d("TAKE PICTURE", "BUTTON `TAKE PICTURE` HAS CLICKED");
-        NavHostFragment.findNavController(MainFragment.this).navigate(R.id.camera_fragment);
+        NavHostFragment.findNavController(MainFragment.this).navigate(R.id.detect_camera_fragment);
     }
 
     public void exportResults() {

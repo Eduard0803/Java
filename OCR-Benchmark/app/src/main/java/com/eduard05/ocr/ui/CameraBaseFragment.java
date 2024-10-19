@@ -235,10 +235,10 @@ public abstract class CameraBaseFragment extends Fragment {
                 Log.d("POINTERS", "P2 x = " + point2.getX() + " y = " + point2.getY());
                 Log.d("POINTERS", "P3 x = " + point3.getX() + " y = " + point3.getY());
                 Log.d("POINTERS", "P4 x = " + point4.getX() + " y = " + point4.getY());
-                successfulTakePicture(namePicture, timestamp,
-                        new File(Environment.getExternalStorageDirectory() + "/Pictures/OCR Benchmark", namePicture + ".jpg"),
-                        new double[] {point1.getX(), point2.getX(), point3.getX(), point4.getX()},
-                        new double[] {point1.getY(), point2.getY(), point3.getY(), point4.getY()}
+                successfulTakePicture(
+                        namePicture,
+                        timestamp,
+                        new File(Environment.getExternalStorageDirectory() + "/Pictures/OCR Benchmark", namePicture + ".jpg")
                 );
             }
 
@@ -279,6 +279,6 @@ public abstract class CameraBaseFragment extends Fragment {
         });
     }
 
-    abstract protected void successfulTakePicture(String namePicture, Long timestamp, File file, double[] x, double[] y);
+    abstract protected void successfulTakePicture(String namePicture, Long timestamp, File file);
     abstract protected String getComplementName();
 }

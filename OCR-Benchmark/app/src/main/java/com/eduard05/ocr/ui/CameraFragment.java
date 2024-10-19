@@ -22,7 +22,7 @@ public class CameraFragment extends CameraBaseFragment {
     }
 
     @Override
-    protected void successfulTakePicture(String namePicture, Long timestamp, File file, double[] x, double[] y) {
+    protected void successfulTakePicture(String namePicture, Long timestamp, File file) {
         Log.d("sucessfulTakePicture", namePicture);
 
         Uri uri = null;
@@ -44,16 +44,6 @@ public class CameraFragment extends CameraBaseFragment {
         cursor.close();
 
         Log.d("DEBUG", "URI --> " + uri.getPath());
-
-        Bitmap fileBitmap = BitmapFactory.decodeFile(uri.getPath());
-
-//        Log.d("DEBUG", "X --> " + (int) Math.round(x[1]));
-//        Log.d("DEBUG", "Y --> " + (int) Math.round(x[2]));
-//        Log.d("DEBUG", "HEIGHT --> " + (int) Math.round(x[1]-x[0]));
-//        Log.d("DEBUG", "WIDTH --> " + (int) Math.round(y[2]-y[1]));
-//        Bitmap croppedImage = Bitmap.createBitmap(fileBitmap,
-//                (int) Math.round(x[1]), (int) Math.round(y[2]), (int) Math.round(x[1]-x[0]), (int) Math.round(y[2]-y[1])
-//        );
 
         BackgroundTaskManager.createOCRProcessor(getContext(), uri.toString());
     }

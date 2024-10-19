@@ -15,16 +15,8 @@ import java.util.concurrent.TimeUnit;
 public class BackgroundTaskManager {
 
     public static void createOCRProcessor(Context context, String filePath){
-        Log.d("OCR PROCESSOR", "INIT METHOD `createOCRProcessor`");
-
-        Log.d("OCR PROCESSOR", "SET UP CONSTRAINS");
-        Constraints constraints = new Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build();
-
         Log.d("OCR PROCESSOR", "CREATING WORKER");
-        OneTimeWorkRequest uploadWorkRequest = new OneTimeWorkRequest.Builder(OCRProcessorWork.class)
-                .setConstraints(constraints)
+        OneTimeWorkRequest ocrWorkRequest = new OneTimeWorkRequest.Builder(OCRProcessorWork.class)
                 .setInputData(new Data.Builder()
                         .putString("filePath", filePath)
                         .build()
@@ -36,6 +28,19 @@ public class BackgroundTaskManager {
                         TimeUnit.MILLISECONDS)
                 .build();
         Log.d("OCR PROCESSOR", "ENQUEUE WORKER");
-        WorkManager.getInstance(context).enqueue(uploadWorkRequest);
+        WorkManager.getInstance(context).enqueue(ocrWorkRequest);
+    }
+
+    public static void createObjectDetectionProcessor(Context context, String filePath){
+        Log.d("OBJECT DETECTOR PROCESSOR", "CREATING WORKER");
+        OneTimeWorkRequest objectDetectorWorkRequest = new OneTimeWorkRequest.Builder(ObjectDetectionWorker.class)
+                .setInputData(new Data.Builder()
+                        .putString("filePath", filePath)
+                        .build()
+                )
+                .addTag(ObjectDetectionWorker.class.getName())
+                .build();
+        Log.d("OBJECT DETECTOR PROCESSOR", "ENQUEUE WORKER");
+        WorkManager.getInstance(context).enqueue(objectDetectorWorkRequest);
     }
 }

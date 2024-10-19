@@ -72,7 +72,6 @@ public class OCRProcessorWork extends Worker {
 
         return Completable.create( emitter -> {
             long startTime = Util.getTime();
-            String[] results = new String[]{""};
 
             InputImage image = InputImage.fromFilePath(getApplicationContext(), uri);
 
