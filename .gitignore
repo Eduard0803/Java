@@ -1,1 +1,28 @@
-TP/entrega/*.class
+# === Build outputs (Maven, Gradle) ===
+**/target/
+**/build/
+**/.gradle/
+
+# === Eclipse ===
+**/.classpath
+**/.project
+**/.settings/
+
+# === IntelliJ IDEA ===
+**/.idea/
+**/*.iml
+**/*.iws
+**/out/
+
+# === VS Code ===
+**/.vscode/
+
+# === Logs and temporary files ===
+**/*.log
+**/*.tmp
+**/*.bak
+**/*.swp
+**/.DS_Store
+**/Thumbs.db
+
+**/*.class
